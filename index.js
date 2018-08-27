@@ -18,7 +18,6 @@ module.exports = {
     // Setup a listener so that on window resizing, the tiles will fit themselves to the size of the window
     let self = this;
     window.addEventListener('resize', () => {
-      this.parentSelector.classList.remove('masonry--' + this.columns);
       self.resizeTiles();
       self.positionTiles();
     });
@@ -27,7 +26,8 @@ module.exports = {
   setDefaults: function(options) {
     this.parentSelector    = (undefined != options.container) ? options.container : false;
     this.columnBreakpoints = (undefined != options.breakpoints) ? options.breakpoints : [{'width': 0, 'columns': 3}];
-    this.spaceAround       = (undefined != options.spaceAround) ? options.spaceAround : 10;
+    this.verticalSpace     = (undefined != options.verticalSpace) ? options.verticalSpace : 10;
+    this.horizontalSpace   = (undefined != options.horizontalSpace) ? options.horizontalSpace : 10;
   },
   // Need to position the tiles
   positionTiles: function() {
@@ -36,20 +36,25 @@ module.exports = {
     for (let i = 0; i < this.columns; i++) {
       columnPos.push(0);
     }
-    // This is our base size for columns
-    let baseWidth = this.parentSelector.clientWidth / this.columns;
+    // This is our base size for columns. 
+    // we take our base container width and subtract the amount used as spacing,
+    // then divide that among the number of columns.
+    let baseWidth = (this.parentSelector.clientWidth - (this.horizontalSpace * (this.columns + 1))) / this.columns;
     // Now, we start positioning tiles. 
     this.tiles.forEach((tile, index) => {
       let tileHeight = Math.min(...columnPos);
       let tileColumn = columnPos.indexOf(tileHeight);
-      // update the column positioning array
-      columnPos[tileColumn] += this.spaceAround + tile.clientHeight;
+      // Set horizontal positioning.
+      tile.style.width = baseWidth + 'px';
+      // Should account for the column AND the spacing in between all the previous columns
+      tile.style.left  = (baseWidth * tileColumn + this.horizontalSpace * (tileColumn + 1)) + 'px';
+      // Update the column positioning array
+      columnPos[tileColumn] += this.verticalSpace + tile.clientHeight;
       // Set tile positioning
-      tile.style.top = (tileHeight + this.spaceAround) + 'px';
-      tile.style.left = (baseWidth * tileColumn) + 'px';
+      tile.style.top   = (tileHeight + this.verticalSpace) + 'px';
     });
     // Set the height of the masonry section
-    this.parentSelector.style.height = (Math.max(...columnPos) + this.spaceAround) + 'px';
+    this.parentSelector.style.height = (Math.max(...columnPos) + this.verticalSpace) + 'px';
   },
   // Loop through all the given breakpoints and find the largest breakpoint under the body width. Set the number of columns to that breakpoints 'columns' property
   resizeTiles: function() {
@@ -63,12 +68,10 @@ module.exports = {
       }
     });
     this.columns = numCols;
-    // Update masonry container class to have the correct class for the number of columns
-    this.parentSelector.classList.add('masonry--' + this.columns);
   },
   addMasonryStyles: function() {
     let styleElement = document.createElement('style');
-    styleElement.innerHTML = ".masonry{position:relative}.tile{position:absolute;width:100%;overflow:hidden;transition:left .5s,top .5s}.masonry--2 .tile{width:50%}.masonry--3 .tile{width:33%}.masonry--4 .tile{width:25%}.masonry--5 .tile{width:20%}";
+    styleElement.innerHTML = ".masonry{position:relative}.tile{position:absolute;width:100%;overflow:hidden;transition:left .5s,top .5s}";
     document.body.appendChild(styleElement);
   }
 };
