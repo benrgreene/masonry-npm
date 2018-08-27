@@ -10,6 +10,12 @@ npm install brg-masonry
 
 ## Use
 
+First, you'll need to require the package
+
+```
+const masonry = require('brg-masonry');
+```
+
 To create a new masonry instance, you'll need to pass in an object with some parameters:
 
 * __container__: This is a node of the container of your masonry instance

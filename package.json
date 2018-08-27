@@ -1,6 +1,6 @@
 {
   "name": "brg-masonry",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Easily create responsive masonry layouts ",
   "main": "index.js",
   "scripts": {
