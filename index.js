@@ -1,5 +1,7 @@
 module.exports = {
   newMasonry: function(parentSelector, columns=[{'width': 0, 'columns': 3}]) {
+    // Add all masonry styles to the page
+    this.addMasonryStyles();
     // Setup the DOM elements for the masonry tiling
     this.parentSelector = parentSelector;
     this.tiles          = parentSelector.querySelectorAll('.tile');
@@ -54,5 +56,10 @@ module.exports = {
     this.columns = numCols;
     // Update masonry container class to have the correct class for the number of columns
     this.parentSelector.classList.add('masonry--' + this.columns);
+  },
+  addMasonryStyles: function() {
+    let styleElement = document.createElement('style');
+    styleElement.innerHTML = ".masonry{position:relative}.tile{position:absolute;width:100%;overflow:hidden;transition:left .5s,top .5s}.masonry--2 .tile{width:50%}.masonry--3 .tile{width:33%}.masonry--4 .tile{width:25%}.masonry--5 .tile{width:20%}";
+    document.body.appendChild(styleElement);
   }
 };
