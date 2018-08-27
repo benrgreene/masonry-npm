@@ -1,16 +1,19 @@
 module.exports = {
-  newMasonry: function(parentSelector, columns=[{'width': 0, 'columns': 3}]) {
+  newMasonry: function(options={}) {
+    // Make sure all defaults are set. If there is no masonry container, bail. 
+    this.setDefaults(options);
+    if (!this.parentSelector) {
+      return false;
+    }
     // Add all masonry styles to the page
     this.addMasonryStyles();
     // Setup the DOM elements for the masonry tiling
-    this.parentSelector = parentSelector;
-    this.tiles          = parentSelector.querySelectorAll('.tile');
-    // Setup base initial sizing of the masonry tiles
-    this.columnBreakpoints = columns;
-    this.resizeTiles();
+    this.tiles = this.parentSelector.querySelectorAll('.tile');
     // add approriate classes to the section
     this.parentSelector.classList.add('masonry');
-    // position the tiles
+    // Setup base initial sizing of the masonry tiles
+    this.resizeTiles();
+    // Now we can position the tiles
     this.positionTiles();
     // Setup a listener so that on window resizing, the tiles will fit themselves to the size of the window
     let self = this;
@@ -19,6 +22,12 @@ module.exports = {
       self.resizeTiles();
       self.positionTiles();
     });
+  },
+  // Filter for setting the default values of the slider
+  setDefaults: function(options) {
+    this.parentSelector    = (undefined != options.container) ? options.container : false;
+    this.columnBreakpoints = (undefined != options.breakpoints) ? options.breakpoints : [{'width': 0, 'columns': 3}];
+    this.spaceAround       = (undefined != options.spaceAround) ? options.spaceAround : 10;
   },
   // Need to position the tiles
   positionTiles: function() {
@@ -34,13 +43,13 @@ module.exports = {
       let tileHeight = Math.min(...columnPos);
       let tileColumn = columnPos.indexOf(tileHeight);
       // update the column positioning array
-      columnPos[tileColumn] += 10 + tile.clientHeight;
+      columnPos[tileColumn] += this.spaceAround + tile.clientHeight;
       // Set tile positioning
-      tile.style.top = (tileHeight + 10) + 'px';
+      tile.style.top = (tileHeight + this.spaceAround) + 'px';
       tile.style.left = (baseWidth * tileColumn) + 'px';
     });
     // Set the height of the masonry section
-    this.parentSelector.style.height = (Math.max(...columnPos) + 10) + 'px';
+    this.parentSelector.style.height = (Math.max(...columnPos) + this.spaceAround) + 'px';
   },
   // Loop through all the given breakpoints and find the largest breakpoint under the body width. Set the number of columns to that breakpoints 'columns' property
   resizeTiles: function() {
